@@ -31,7 +31,11 @@ var keyframeTheta = [];
 var keyframeInstance = [];
 var colors = [];
 
-var SOUNDLOCATIONS = ["./Sounds/gallop.mp3", "./Sounds/gallop2.wav", "./Sounds/idle.wav"];
+var SOUNDLOCATIONS = [
+  "./Sounds/gallop.mp3",
+  "./Sounds/gallop2.wav",
+  "./Sounds/idle.wav",
+];
 
 var vertices = [
   vec4(-0.5, -0.5, 0.5, 1.0),
@@ -41,9 +45,8 @@ var vertices = [
   vec4(-0.5, -0.5, -0.5, 1.0),
   vec4(-0.5, 0.5, -0.5, 1.0),
   vec4(0.5, 0.5, -0.5, 1.0),
-  vec4(0.5, -0.5, -0.5, 1.0)
+  vec4(0.5, -0.5, -0.5, 1.0),
 ];
-
 
 var TORSO_ID = 0;
 var NECK_ID = 1;
@@ -93,7 +96,8 @@ var stack = [];
 
 var figure = [];
 
-for (var i = 0; i < numNodes; i++) figure[i] = createNode(null, null, null, null);
+for (var i = 0; i < numNodes; i++)
+  figure[i] = createNode(null, null, null, null);
 
 var vBuffer;
 var modelViewLoc;
@@ -106,7 +110,7 @@ var vertexColors = [
   vec4(0.6, 0.32, 0.17, 1), // Brown
   vec4(0.7, 0.3, 0.0, 1.0), // Brown dark
   vec4(0.5, 0.3, 0.1, 1.0), // Brown light
-  vec4(0.5, 0.25, 0.14, 1.0) // Brown more lighten
+  vec4(0.5, 0.25, 0.14, 1.0), // Brown more lighten
 ];
 
 //-------------------------------------------
@@ -125,7 +129,7 @@ function createNode(transform, render, sibling, child) {
     render: render,
     sibling: sibling,
     child: child,
-  }
+  };
   return node;
 }
 
@@ -141,7 +145,7 @@ function initNodes(Id) {
 
     case NECK_ID:
       m = translate(0.0, torsoHeight - neckHeight + 3.5, 0.0);
-      m = mult(m, rotate(theta[NECK_ID], 1, 0, 0))
+      m = mult(m, rotate(theta[NECK_ID], 1, 0, 0));
       m = mult(m, rotate(theta[HEAD2_ID], 0, 1, 0));
       m = mult(m, translate(0.0, -1 * neckHeight, 0.0));
       figure[NECK_ID] = createNode(m, neck, LEFT_FRONT_LEG_ID, HEAD_ID);
@@ -150,65 +154,80 @@ function initNodes(Id) {
     case HEAD_ID:
     case HEAD1_ID:
     case HEAD2_ID:
-
       m = translate(0.0, 0.2 * headHeight, 0.0);
-      m = mult(m, rotate(theta[HEAD1_ID], 1, 0, 0))
+      m = mult(m, rotate(theta[HEAD1_ID], 1, 0, 0));
       //  m = mult(m, rotate(theta[HEAD2_ID], 0, 1, 0));
       m = mult(m, translate(0.0, -0.8 * headHeight, 0.0));
       //figure[HEAD_ID] = createNode(m, head, LEFT_FRONT_LEG_ID, null);
       figure[HEAD_ID] = createNode(m, head, null, null);
       break;
     case LEFT_FRONT_LEG_ID:
-
       m = translate(-(torsoWidth / 3 + upperArmWidth), 0.9 * torsoHeight, 0.0);
       m = mult(m, rotate(theta[LEFT_FRONT_LEG_ID], 1, 0, 0));
-      figure[LEFT_FRONT_LEG_ID] = createNode(m, leftUpperArm, RIGHT_FRONT_LEG_ID, LEFT_FRONT_FOOT_ID);
+      figure[LEFT_FRONT_LEG_ID] = createNode(
+        m,
+        leftUpperArm,
+        RIGHT_FRONT_LEG_ID,
+        LEFT_FRONT_FOOT_ID
+      );
       break;
 
     case RIGHT_FRONT_LEG_ID:
-
       m = translate(torsoWidth / 3 + upperArmWidth, 0.9 * torsoHeight, 0.0);
       m = mult(m, rotate(theta[RIGHT_FRONT_LEG_ID], 1, 0, 0));
-      figure[RIGHT_FRONT_LEG_ID] = createNode(m, rightUpperArm, LEFT_BACK_LEG_ID, RIGHT_FRONT_FOOT_ID);
+      figure[RIGHT_FRONT_LEG_ID] = createNode(
+        m,
+        rightUpperArm,
+        LEFT_BACK_LEG_ID,
+        RIGHT_FRONT_FOOT_ID
+      );
       break;
 
     case LEFT_BACK_LEG_ID:
-
-      m = translate(-(torsoWidth / 3 + upperLegWidth), 0.1 * upperLegHeight, 0.0);
+      m = translate(
+        -(torsoWidth / 3 + upperLegWidth),
+        0.1 * upperLegHeight,
+        0.0
+      );
       m = mult(m, rotate(theta[LEFT_BACK_LEG_ID], 1, 0, 0));
-      figure[LEFT_BACK_LEG_ID] = createNode(m, leftUpperLeg, RIGHT_BACK_LEG_ID, LEFT_BACK_FOOT_ID);
+      figure[LEFT_BACK_LEG_ID] = createNode(
+        m,
+        leftUpperLeg,
+        RIGHT_BACK_LEG_ID,
+        LEFT_BACK_FOOT_ID
+      );
       break;
 
     case RIGHT_BACK_LEG_ID:
-
       m = translate(torsoWidth / 3 + upperLegWidth, 0.1 * upperLegHeight, 0.0);
       m = mult(m, rotate(theta[RIGHT_BACK_LEG_ID], 1, 0, 0));
-      figure[RIGHT_BACK_LEG_ID] = createNode(m, rightUpperLeg, null, RIGHT_BACK_FOOT_ID);
+      figure[RIGHT_BACK_LEG_ID] = createNode(
+        m,
+        rightUpperLeg,
+        null,
+        RIGHT_BACK_FOOT_ID
+      );
       break;
 
     case LEFT_FRONT_FOOT_ID:
-
       m = translate(0.0, upperArmHeight, 0.0);
       m = mult(m, rotate(theta[LEFT_FRONT_FOOT_ID], 1, 0, 0));
       figure[LEFT_FRONT_FOOT_ID] = createNode(m, leftLowerArm, null, null);
       break;
 
     case RIGHT_FRONT_FOOT_ID:
-
       m = translate(0.0, upperArmHeight, 0.0);
       m = mult(m, rotate(theta[RIGHT_FRONT_FOOT_ID], 1, 0, 0));
       figure[RIGHT_FRONT_FOOT_ID] = createNode(m, rightLowerArm, null, null);
       break;
 
     case LEFT_BACK_FOOT_ID:
-
       m = translate(0.0, upperLegHeight, 0.0);
       m = mult(m, rotate(theta[LEFT_BACK_FOOT_ID], 1, 0, 0));
       figure[LEFT_BACK_FOOT_ID] = createNode(m, leftLowerLeg, null, null);
       break;
 
     case RIGHT_BACK_FOOT_ID:
-
       m = translate(0.0, upperLegHeight, 0.0);
       m = mult(m, rotate(theta[RIGHT_BACK_FOOT_ID], 1, 0, 0));
       figure[RIGHT_BACK_FOOT_ID] = createNode(m, rightLowerLeg, null, null);
@@ -228,87 +247,138 @@ function traverse(Id) {
 }
 
 function torso() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * torsoHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(torsoWidth, torsoHeight, torsoWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * torsoHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(torsoWidth, torsoHeight, torsoWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function head() {
   instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * headHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(headWidth, headHeight, headWidth));
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(headWidth, headHeight, headWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function neck() {
   instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * neckHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(neckWidth, neckHeight, neckWidth));
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(neckWidth, neckHeight, neckWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperArm() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * upperArmHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperArmWidth, upperArmHeight, upperArmWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerArm() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * lowerArmHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperArm() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperArmHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(upperArmWidth, upperArmHeight, upperArmWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * upperArmHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperArmWidth, upperArmHeight, upperArmWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerArm() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerArmHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * lowerArmHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftUpperLeg() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight, upperLegWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * upperLegHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperLegWidth, upperLegHeight, upperLegWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function leftLowerLeg() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * lowerLegHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightUpperLeg() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * upperLegHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(upperLegWidth, upperLegHeight, upperLegWidth));
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * upperLegHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(upperLegWidth, upperLegHeight, upperLegWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
 
 function rightLowerLeg() {
-
-  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.5 * lowerLegHeight, 0.0));
-  instanceMatrix = mult(instanceMatrix, scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth))
+  instanceMatrix = mult(
+    modelViewMatrix,
+    translate(0.0, 0.5 * lowerLegHeight, 0.0)
+  );
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(lowerLegWidth, lowerLegHeight, lowerLegWidth)
+  );
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
@@ -319,7 +389,6 @@ function quad(a, b, c, d) {
   pointsArray.push(vertices[c]);
   pointsArray.push(vertices[d]);
 }
-
 
 function cube() {
   quad(1, 0, 3, 2);
@@ -354,22 +423,19 @@ function cube() {
   colors.push(vertexColors[3]);
 }
 
-
 window.onload = function init() {
-
   audioRun = new Audio(SOUNDLOCATIONS[0]);
   audioRun.loop = true;
 
-  document.getElementById('saveLoader').onchange = function() {
-
+  document.getElementById("saveLoader").onchange = function () {
     keyframeTheta = [];
     var file = this.files[0];
     var reader = new FileReader();
-    reader.onload = function(progressEvent) {
+    reader.onload = function (progressEvent) {
       // By parts
-      var parts = this.result.split('|');
+      var parts = this.result.split("|");
       for (var i = 1; i < parseInt(parts[0]) + 1; i++) {
-        var allValues = parts[i].split(',');
+        var allValues = parts[i].split(",");
         var someTheta = [];
         for (var f = 0; f < allValues.length + 10; f++) {
           console.log(allValues[f]);
@@ -379,13 +445,12 @@ window.onload = function init() {
         console.log(someTheta[0]);
         keyframeTheta.push(someTheta.slice());
       }
-
     };
     reader.readAsText(file);
     toastr["success"]("Animation loaded successfully. Hit Run", "Animation");
-  }
+  };
 
-  $("#save_all").click(function() {
+  $("#save_all").click(function () {
     if (keyframeTheta.length == 0) {
       keyframeTheta = keyframeInstance.slice();
     }
@@ -394,10 +459,10 @@ window.onload = function init() {
     for (var i = 0; i < keyframeTheta.length; i++)
       text += keyframeTheta[i] + "|";
 
-    var filename = "saved_animation"
+    var filename = "saved_animation";
     console.log("Saving");
     var blob = new Blob([text], {
-      type: "text/plain;charset=utf-8"
+      type: "text/plain;charset=utf-8",
     });
     this.href = URL.createObjectURL(blob);
     this.download = filename;
@@ -423,9 +488,17 @@ window.onload = function init() {
   projectionMatrix = ortho(-40.0, 40.0, -23.0, 23.0, -40.0, 40.0);
   modelViewMatrix = mat4();
 
-  gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(modelViewMatrix));
-  gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
-  modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
+  gl.uniformMatrix4fv(
+    gl.getUniformLocation(program, "modelViewMatrix"),
+    false,
+    flatten(modelViewMatrix)
+  );
+  gl.uniformMatrix4fv(
+    gl.getUniformLocation(program, "projectionMatrix"),
+    false,
+    flatten(projectionMatrix)
+  );
+  modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
   cube();
   vBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -443,91 +516,99 @@ window.onload = function init() {
   var vColor = gl.getAttribLocation(program, "vColor");
   gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(vColor);
-  document.getElementById("slider0").onchange = function() {
+  document.getElementById("slider0").onchange = function () {
     theta[TORSO_ID] = event.srcElement.value;
     initNodes(TORSO_ID);
   };
-  document.getElementById("slider1").onchange = function() {
+  document.getElementById("slider1").onchange = function () {
     theta[HEAD1_ID] = event.srcElement.value;
     initNodes(HEAD1_ID);
   };
 
-  document.getElementById("slider2").onchange = function(e) {
+  document.getElementById("slider2").onchange = function (e) {
     console.log(e);
     theta[LEFT_FRONT_LEG_ID] = event.srcElement.value;
     initNodes(LEFT_FRONT_LEG_ID);
   };
-  document.getElementById("slider3").onchange = function() {
+  document.getElementById("slider3").onchange = function () {
     theta[LEFT_FRONT_FOOT_ID] = event.srcElement.value;
     initNodes(LEFT_FRONT_FOOT_ID);
   };
 
-  document.getElementById("slider4").onchange = function() {
+  document.getElementById("slider4").onchange = function () {
     theta[RIGHT_FRONT_LEG_ID] = event.srcElement.value;
     initNodes(RIGHT_FRONT_LEG_ID);
   };
-  document.getElementById("slider5").onchange = function() {
+  document.getElementById("slider5").onchange = function () {
     theta[RIGHT_FRONT_FOOT_ID] = event.srcElement.value;
     initNodes(RIGHT_FRONT_FOOT_ID);
   };
-  document.getElementById("slider6").onchange = function() {
+  document.getElementById("slider6").onchange = function () {
     theta[LEFT_BACK_LEG_ID] = event.srcElement.value;
     initNodes(LEFT_BACK_LEG_ID);
   };
-  document.getElementById("slider7").onchange = function() {
+  document.getElementById("slider7").onchange = function () {
     theta[LEFT_BACK_FOOT_ID] = event.srcElement.value;
     initNodes(LEFT_BACK_FOOT_ID);
   };
-  document.getElementById("slider8").onchange = function() {
+  document.getElementById("slider8").onchange = function () {
     theta[RIGHT_BACK_LEG_ID] = event.srcElement.value;
     initNodes(RIGHT_BACK_LEG_ID);
   };
-  document.getElementById("slider9").onchange = function() {
+  document.getElementById("slider9").onchange = function () {
     theta[RIGHT_BACK_FOOT_ID] = event.srcElement.value;
     initNodes(RIGHT_BACK_FOOT_ID);
   };
 
-  document.getElementById("slider10").onchange = function() {
+  document.getElementById("slider10").onchange = function () {
     theta[HEAD2_ID] = event.srcElement.value;
     initNodes(NECK_ID);
   };
 
-  document.getElementById("slider14").onchange = function() {
+  document.getElementById("slider14").onchange = function () {
     theta[NECK_ID] = event.srcElement.value;
     initNodes(NECK_ID);
   };
 
-  document.getElementById("slider11").onchange = function() {
+  document.getElementById("slider11").onchange = function () {
     theta[GLOBAL_ANGLE_ID] = event.srcElement.value;
     initNodes(TORSO_ID);
   };
 
-  document.getElementById("slider12").onchange = function() {
+  document.getElementById("slider12").onchange = function () {
     theta[GLOBAL_X_COORDINATE] = event.srcElement.value - 400;
-    gl.viewport(0 + theta[GLOBAL_X_COORDINATE], 0 + theta[GLOBAL_Y_COORDINATE], canvas.width, canvas.height);
+    gl.viewport(
+      0 + theta[GLOBAL_X_COORDINATE],
+      0 + theta[GLOBAL_Y_COORDINATE],
+      canvas.width,
+      canvas.height
+    );
     initNodes(TORSO_ID);
   };
 
-  document.getElementById("slider13").onchange = function() {
+  document.getElementById("slider13").onchange = function () {
     theta[GLOBAL_Y_COORDINATE] = event.srcElement.value - 400;
-    gl.viewport(0 + theta[GLOBAL_X_COORDINATE], 0 + theta[GLOBAL_Y_COORDINATE], canvas.width, canvas.height);
+    gl.viewport(
+      0 + theta[GLOBAL_X_COORDINATE],
+      0 + theta[GLOBAL_Y_COORDINATE],
+      canvas.width,
+      canvas.height
+    );
     initNodes(TORSO_ID);
   };
 
   for (i = 0; i < numNodes; i++) initNodes(i);
 
   render();
-}
+};
 
-
-
-var render = function() {
+var render = function () {
   gl.clear(gl.DEPTH_BUFFER_BIT);
   //gl.clear(gl.COLOR_BUFFER_BIT);
   gl.clear(0, 0, 0, 0);
   traverse(TORSO_ID);
   requestAnimFrame(render);
-}
+};
 
 function initAll() {
   initNodes(TORSO_ID);
@@ -569,7 +650,12 @@ function playAnimationOptimized() {
   var lastThetas = keyframeTheta.shift();
   theta = lastThetas.slice();
   initAll();
-  gl.viewport(0 + theta[GLOBAL_X_COORDINATE], 0 + theta[GLOBAL_Y_COORDINATE], canvas.width, canvas.height);
+  gl.viewport(
+    0 + theta[GLOBAL_X_COORDINATE],
+    0 + theta[GLOBAL_Y_COORDINATE],
+    canvas.width,
+    canvas.height
+  );
   if (intervalID == 0) {
     audioRun.play();
     progVis = document.getElementById("animationPercent");
@@ -621,5 +707,8 @@ function saveFrame() {
   knownLastIndex = lastIndex;
   indexer.value = lastIndex + 11;
   indexer.min = lastIndex + 11;
-  toastr["success"]("Keyframe with given parameters are successfully set", "Keyframe");
+  toastr["success"](
+    "Keyframe with given parameters are successfully set",
+    "Keyframe"
+  );
 }
