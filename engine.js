@@ -62,9 +62,14 @@ var LEFT_BACK_FOOT_ID = 8;
 var RIGHT_BACK_LEG_ID = 9;
 var RIGHT_BACK_FOOT_ID = 10;
 //
-var GLOBAL_ANGLE_ID = 12;
-var GLOBAL_X_COORDINATE = 13;
-var GLOBAL_Y_COORDINATE = 14;
+var TAIL_ID = 12;
+var EAR_LEFT_ID = 13;
+var EAR_RIGHT_ID = 14;
+var hhInc = 3;
+
+var GLOBAL_ANGLE_ID = TAIL_ID + hhInc;
+var GLOBAL_X_COORDINATE = TAIL_ID + hhInc + 1;
+var GLOBAL_Y_COORDINATE = TAIL_ID + hhInc + 2;
 
 var torsoHeight = 8.0;
 var torsoWidth = 3.0;
@@ -80,17 +85,39 @@ var headHeight = 3.5;
 var headWidth = 1.5;
 var neckHeight = 4.0;
 var neckWidth = 2.0;
+var tailHeight = 6.0;
+var tailWidth = 1.0;
+var earHeight = 1.5;
+var earWidth = 1.5;
 
-var numNodes = 11;
-var numAngles = 11;
+var numNodes = 15;
+var numAngles = 15;
 
 var frameOn = 0;
-var theta = [90, 120, 90, 70, 10, 80, 10, 90, 40, 70, 30, 0, -90, 0, 0];
+var theta = [
+  90 /* torso rotation*/,
+  110 /* neck*/,
+  90 /* head*/,
+  70 /* left front leg */,
+  10 /* left front foot */,
+  80 /* right front leg */,
+  10 /* right front foot */,
+  120 /* left back leg */,
+  -40 /* left back foot */,
+  140 /* right back leg */,
+  -30 /* right back foot */,
+  0 /* head 2 id */,
+  -100 /* tail */,
+  0 /* ear left */,
+  0 /* ear right */,
+  -25 /* global angle */,
+  0 /* global x */,
+  0 /* global y */,
+  ,
+];
 
 // var globalAngle = 270;
 var knownLastIndex = 1;
-
-var numVertices = 24;
 
 var stack = [];
 
@@ -104,13 +131,15 @@ var modelViewLoc;
 
 var pointsArray = [];
 
-var stepParam = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
 var vertexColors = [
-  vec4(0.6, 0.32, 0.17, 1), // Brown
-  vec4(0.7, 0.3, 0.0, 1.0), // Brown dark
-  vec4(0.5, 0.3, 0.1, 1.0), // Brown light
-  vec4(0.5, 0.25, 0.14, 1.0), // Brown more lighten
+  // vec4(0.6, 0.32, 0.17, 1), // Brown
+  // vec4(0.7, 0.3, 0.0, 1.0), // Brown dark
+  // vec4(0.5, 0.3, 0.1, 1.0), // Brown light
+  // vec4(0.5, 0.25, 0.14, 1.0), // Brown more lighten
+  vec4(0.9, 0.25, 0.6, 1.0), // Pink
+  vec4(0.8, 0.18, 0.45, 1.0), // Pink dark
+  vec4(0.93, 0.81, 0.89, 1.0), // Pink light
+  vec4(0.98, 0.9, 0.93, 1.0), // Pink lighter
 ];
 
 //-------------------------------------------
@@ -133,6 +162,8 @@ function createNode(transform, render, sibling, child) {
   return node;
 }
 
+/* COMMENT BY FAIZ */
+// Initialization matrix for transformation for each part
 function initNodes(Id) {
   var m = mat4();
 
@@ -159,8 +190,21 @@ function initNodes(Id) {
       //  m = mult(m, rotate(theta[HEAD2_ID], 0, 1, 0));
       m = mult(m, translate(0.0, -0.8 * headHeight, 0.0));
       //figure[HEAD_ID] = createNode(m, head, LEFT_FRONT_LEG_ID, null);
-      figure[HEAD_ID] = createNode(m, head, null, null);
+      figure[HEAD_ID] = createNode(m, head, EAR_LEFT_ID, null);
       break;
+
+    case EAR_LEFT_ID:
+      m = translate(-(torsoWidth / 3 + upperArmWidth), 0.1 * earHeight, 0);
+      m = mult(m, rotate(theta[EAR_LEFT_ID], 1, 0, 0));
+      figure[EAR_LEFT_ID] = createNode(m, earLeft, EAR_RIGHT_ID, null);
+      break;
+
+    case EAR_RIGHT_ID:
+      m = translate(torsoWidth / 3 + upperArmWidth, 0.1 * earHeight, 0);
+      m = mult(m, rotate(theta[EAR_RIGHT_ID], 1, 0, 0));
+      figure[EAR_RIGHT_ID] = createNode(m, earRight, null, null);
+      break;
+
     case LEFT_FRONT_LEG_ID:
       m = translate(-(torsoWidth / 3 + upperArmWidth), 0.9 * torsoHeight, 0.0);
       m = mult(m, rotate(theta[LEFT_FRONT_LEG_ID], 1, 0, 0));
@@ -204,9 +248,15 @@ function initNodes(Id) {
       figure[RIGHT_BACK_LEG_ID] = createNode(
         m,
         rightUpperLeg,
-        null,
+        TAIL_ID,
         RIGHT_BACK_FOOT_ID
       );
+      break;
+
+    case TAIL_ID:
+      m = translate(0.0, 0.1 * tailHeight, 0);
+      m = mult(m, rotate(theta[TAIL_ID], 1, 0, 0));
+      figure[TAIL_ID] = createNode(m, tail, null, null);
       break;
 
     case LEFT_FRONT_FOOT_ID:
@@ -246,6 +296,8 @@ function traverse(Id) {
   if (figure[Id].sibling != null) traverse(figure[Id].sibling);
 }
 
+/* COMMENT BY FAIZ */
+// Rendering function for each part
 function torso() {
   instanceMatrix = mult(
     modelViewMatrix,
@@ -275,6 +327,30 @@ function neck() {
     instanceMatrix,
     scale4(neckWidth, neckHeight, neckWidth)
   );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+}
+
+function tail() {
+  instanceMatrix = mult(modelViewMatrix, translate(0.0, 0.7 * tailHeight, 0));
+  instanceMatrix = mult(
+    instanceMatrix,
+    scale4(tailWidth, tailHeight, tailWidth)
+  );
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+}
+
+function earLeft() {
+  instanceMatrix = mult(modelViewMatrix, translate(0.0, -0.4 * earHeight, 0));
+  instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+  for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
+}
+
+function earRight() {
+  instanceMatrix = mult(modelViewMatrix, translate(0.0, -0.4 * earHeight, 0));
+  instanceMatrix = mult(instanceMatrix, scale4(earWidth, earHeight, earWidth));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
@@ -382,6 +458,8 @@ function rightLowerLeg() {
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
   for (var i = 0; i < 6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4 * i, 4);
 }
+/* COMMENT BY FAIZ */
+// End of rendering function
 
 function quad(a, b, c, d) {
   pointsArray.push(vertices[a]);
@@ -427,28 +505,28 @@ window.onload = function init() {
   audioRun = new Audio(SOUNDLOCATIONS[0]);
   audioRun.loop = true;
 
-  document.getElementById("saveLoader").onchange = function () {
-    keyframeTheta = [];
-    var file = this.files[0];
-    var reader = new FileReader();
-    reader.onload = function (progressEvent) {
-      // By parts
-      var parts = this.result.split("|");
-      for (var i = 1; i < parseInt(parts[0]) + 1; i++) {
-        var allValues = parts[i].split(",");
-        var someTheta = [];
-        for (var f = 0; f < allValues.length + 10; f++) {
-          console.log(allValues[f]);
-          someTheta[f] = parseFloat(allValues[f]);
-        }
+  // document.getElementById("saveLoader").onchange = function () {
+  //   keyframeTheta = [];
+  //   var file = this.files[0];
+  //   var reader = new FileReader();
+  //   reader.onload = function (progressEvent) {
+  //     // By parts
+  //     var parts = this.result.split("|");
+  //     for (var i = 1; i < parseInt(parts[0]) + 1; i++) {
+  //       var allValues = parts[i].split(",");
+  //       var someTheta = [];
+  //       for (var f = 0; f < allValues.length + 10; f++) {
+  //         console.log(allValues[f]);
+  //         someTheta[f] = parseFloat(allValues[f]);
+  //       }
 
-        console.log(someTheta[0]);
-        keyframeTheta.push(someTheta.slice());
-      }
-    };
-    reader.readAsText(file);
-    toastr["success"]("Animation loaded successfully. Hit Run", "Animation");
-  };
+  //       console.log(someTheta[0]);
+  //       keyframeTheta.push(someTheta.slice());
+  //     }
+  //   };
+  //   reader.readAsText(file);
+  //   toastr["success"]("Animation loaded successfully. Hit Run", "Animation");
+  // };
 
   $("#save_all").click(function () {
     if (keyframeTheta.length == 0) {
@@ -597,7 +675,15 @@ window.onload = function init() {
     initNodes(TORSO_ID);
   };
 
-  for (i = 0; i < numNodes; i++) initNodes(i);
+  document.getElementById("sliderTail").onchange = function () {
+    theta[TAIL_ID] = event.srcElement.value;
+    initNodes(TAIL_ID);
+  };
+
+  for (i = 0; i < numNodes; i++) {
+    if (i == 11) continue;
+    initNodes(i);
+  }
 
   render();
 };
