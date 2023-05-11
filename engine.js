@@ -1,18 +1,4 @@
-// Serhan Gürsoy -  Computer Graphics Course Bilkent University Assignment II
-//
-// This code used figure.js as the base code from textbook. Original code can be
-// seen in the folder named "09" with figure.html and figure.js. Regardless,
-// our assignment was quite different than the base code, therefore, I changed so
-// many things that they are not even near-similar with this current state.
-// For animation, I used showing frames one by one. Which is the most obvious tecnique I think.
-// In order to make a smooth transition, I came up with a simple trick which creates
-// mid-frames between two frame according to their timestamp. In order to save
-// just go and create your animation and click save. In order to load new one, click
-// load from the navigation bar. If you succesfully load an animation, a notification
-// will pop and inform you. Once you get clearence, you are ready to click Run
-// and see your animation. I also added background and color feature. Which can be
-// seen directly. In order to change colors, you should look at engine.js and for background
-// you should alter the index.html.
+// Every new comment that I made will be marked with a title comment with my name
 
 var canvas;
 var gl;
@@ -48,6 +34,8 @@ var vertices = [
   vec4(0.5, -0.5, -0.5, 1.0),
 ];
 
+/* COMMENT BY FAIZ */
+// Part ID
 var TORSO_ID = 0;
 var NECK_ID = 1;
 var HEAD_ID = 2;
@@ -71,6 +59,8 @@ var GLOBAL_ANGLE_ID = TAIL_ID + hhInc;
 var GLOBAL_X_COORDINATE = TAIL_ID + hhInc + 1;
 var GLOBAL_Y_COORDINATE = TAIL_ID + hhInc + 2;
 
+/* COMMENT BY FAIZ */
+// Sizes for each part
 var torsoHeight = 8.0;
 var torsoWidth = 3.0;
 var upperArmHeight = 5.0;
@@ -94,6 +84,9 @@ var numNodes = 15;
 var numAngles = 15;
 
 var frameOn = 0;
+
+/* COMMENT BY FAIZ */
+// Angle used for rotation/translation
 var theta = [
   90 /* torso rotation*/,
   110 /* neck*/,
@@ -131,6 +124,8 @@ var modelViewLoc;
 
 var pointsArray = [];
 
+/* COMMENT BY FAIZ */
+// Determine each part's color
 var vertexColors = [
   // vec4(0.6, 0.32, 0.17, 1), // Brown
   // vec4(0.7, 0.3, 0.0, 1.0), // Brown dark
@@ -152,6 +147,8 @@ function scale4(a, b, c) {
 }
 //--------------------------------------------
 
+/* COMMENT BY FAIZ */
+// Create node used for rendering
 function createNode(transform, render, sibling, child) {
   var node = {
     transform: transform,
@@ -164,6 +161,7 @@ function createNode(transform, render, sibling, child) {
 
 /* COMMENT BY FAIZ */
 // Initialization matrix for transformation for each part
+// Init nodes per part will be called upon updating angles by slider
 function initNodes(Id) {
   var m = mat4();
 
@@ -285,6 +283,8 @@ function initNodes(Id) {
   }
 }
 
+/* COMMENT BY FAIZ */
+// Rendering done by traversing each part in a tree data structure style
 function traverse(Id) {
   if (Id == null) return;
 
@@ -594,6 +594,9 @@ window.onload = function init() {
   var vColor = gl.getAttribLocation(program, "vColor");
   gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(vColor);
+
+  /* COMMENT BY FAIZ */
+  // Listener for each slider
   document.getElementById("slider0").onchange = function () {
     theta[TORSO_ID] = event.srcElement.value;
     initNodes(TORSO_ID);
@@ -680,6 +683,8 @@ window.onload = function init() {
     initNodes(TAIL_ID);
   };
 
+  /* COMMENT BY FAIZ */
+  // Node initialization, skip 11 since it doesn't refer to the object part
   for (i = 0; i < numNodes; i++) {
     if (i == 11) continue;
     initNodes(i);
